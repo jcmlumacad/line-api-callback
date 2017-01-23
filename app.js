@@ -6,6 +6,7 @@ var express = require('express'),
 
 app.get('/', function (req, res) {
     console.log('Test');
+    res.send('Test');
 });
 
 app.post('/callback', function (req, res) {
