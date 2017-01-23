@@ -2,9 +2,12 @@
   "name": "line-api-callback",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "5.9.1"
+  },
   "main": "app.js",
   "scripts": {
-    "start": "npm install"
+    "start": "node app.js"
   },
   "author": "John Conrad Lumacad <johnconradl18@gmail.com>",
   "license": "ISC",
