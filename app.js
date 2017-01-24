@@ -6,8 +6,8 @@ var express = require('express'),
     fs = require('fs'),
     util = require('util'),
     request = require('request'),
-    client = require('socket.io-client'),
-    server = require('socket.io'),
+    https = require('https'),
+    server = https.createServer(app),
     port = process.env.NODE_PORT || 8080;
 
 
@@ -27,7 +27,8 @@ app.post('/callback', function (req, res) {
         var text = req.body.events[0].message.text;
     }
 
-    var socket = client('https://line-api-callback.herokuapp.com:80');
+    var io = require('socket.io-client');
+    var socket = io('https://line-api-callback.herokuapp.com:80');
     socket.on('connected', function () {
         socket.emit('init', { 'room': userId, 'name': 'conrad' });
         socket.emit('chat message', '[LINE]' + text);
@@ -78,7 +79,8 @@ app.post('/callback', function (req, res) {
 
             console.log('Response from Bluemix:', message);
 
-            var socket = client('socket.io-client');
+            var io = require('socket.io-client');
+            var socket = io('https://line-api-callback.herokuapp.com:80');
             socket.on('connected', function () {
                 socket.emit('init', { 'room': userId, 'name': 'conrad' });
                 socket.emit('chat message', '[BOT]' + text);
@@ -120,7 +122,8 @@ app.get('/push', function (req, res) {
     request.post(options, function (err, res, body) {});
 });
 
-server.sockets.on('connection', function (socket) {
+var io = require('socket.io')(server);
+io.sockets.on('connection', function (socket) {
     socket.emit('connected');
     socket.on('init', function (req) {
         socket.room = req.room;
@@ -130,10 +133,10 @@ server.sockets.on('connection', function (socket) {
     });
 
     socket.on('chat message', function (message) {
-        server.to(socket.room).emit('chat message', 'Message:', message);
+        io.to(socket.room).emit('chat message', 'Message:', message);
     });
 });
 
-app.listen(port, function () {
+server.listen(port, function () {
     console.log('Listening to port:', port);
 });
