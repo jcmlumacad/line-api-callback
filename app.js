@@ -144,7 +144,7 @@ io.sockets.on('connection', function (socket) {
         console.log('socket room:', socket.room);
         console.log('socket name:', socket.name);
         console.log('socket message:', message);
-        io.to(socket.room).emit('chat message', 'Message:', message);
+        io.to(socket.room).emit('chat message', 'Message: ' + message);
     });
 });
 
