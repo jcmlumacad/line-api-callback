@@ -14,15 +14,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
-    var userId = req.query.userId;
+    var userId = req.query.user_id;
     console.log('user id:', userId);
     res.sendFile(__dirname + '/index.html');
 });
 
 app.post('/callback', function (req, res) {
     var userId = req.body.events[0].source.userId;
-    var eventType = req.body.events[0].type
-    if (eventType === 'message') {
+    var eventType = req.body.events[0].type;
+    if (eventType == 'message') {
         var text = req.body.events[0].message.text;
     }
 
@@ -82,7 +82,7 @@ app.post('/callback', function (req, res) {
             var socket = io('https://line-api-callback.herokuapp.com:80');
             socket.on('connected', function () {
                 socket.emit('init', { 'room': userId, 'name': 'conrad' });
-                socket.emit('chat message', '[BOT]' + text);
+                socket.emit('chat message', '[BOT]' + message);
             });
 
             url = 'https://line-api-callback.herokuapp.com/push?message=' + message + '&user_id=' + userId;
