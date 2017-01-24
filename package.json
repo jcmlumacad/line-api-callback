@@ -1,17 +1,13 @@
 {
   "name": "line-api-callback",
   "version": "1.0.0",
-  "description": "Callback for LINE",
+  "description": "Webhook for LINE",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "body-parser": "^1.16.0",
-    "express": "^4.14.0",
-    "request": "^2.79.0",
-    "socket.io": "^1.5.1",
-    "watson-developer-cloud": "^2.15.2"
+    "express": "^4.14.0"
   },
   "keywords": [
     "node",
