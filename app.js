@@ -1,76 +1,57 @@
-const app = require('express')();
-const bodyParser = require('body-parser');
-const fs = require('fs');
-var util = require('util');
-var http = require('http');
-var querystring = require('querystring');
-var request = require('request');
-var server = require('http').createServer(app);
-var port = process.env.PORT || 5000;
+'use strict';
 
-server.listen(port);
-console.log('listening to port', port);
+var express = require('express'),
+    app = express(),
+    bodyParser = require('body-parser'),
+    fs = require('fs'),
+    util = require('util'),
+    request = require('request'),
+    https = require('https'),
+    server = https.createServer(app),
+    port = process.env.PORT || 5000;
 
-// bodyParser
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
-//
-app.get('/', (req, res) => {
-    var uid =  req.query.uid;
-    console.log('uid:' + uid);
+app.get('/', function (req, res) {
+    var userId = req.query.userId;
+    console.log('user id:', userId);
     res.sendFile(__dirname + '/index.html');
 });
-app.post('/callback', (req, res) => {
-    console.log('got post request.');
-    console.log(req.body);
-    console.log(req.body.events[0].replyToken);
-    uid = req.body.events[0].source.userId;
 
-//    console.log('userid from LINE:' + req.body.events[0].source.userId);
-    console.log('event type from LINE:' + req.body.events[0].type);
-
-    var event_type = req.body.events[0].type
-    if ( event_type == 'follow') { // user add bot to friends
-        //
-    }  else if (event_type == 'unfollow'){     // user removed bot from friends
-        //
-    }  else if (event_type == 'message'){     // message from LINE
-        f_text = req.body.events[0].message.text;
+app.post('/callback', function (req, res) {
+    var userId = req.body.events[0].source.userId;
+    var eventType = req.body.events[0].type
+    if (eventType === 'message') {
+        var text = req.body.events[0].message.text;
     }
 
-   // var io = require('socket.io')();
-    var io   = require('socket.io-client');
+    var io = require('socket.io-client');
     var socket = io('https://line-api-callback.herokuapp.com:80');
-     socket.on('connected', function() {
-         socket.emit('init', { 'room': uid, 'name': 'tagoto' });
-         socket.emit('chat message', '[LINE]'+ f_text);
-     });
+    socket.on('connected', function () {
+        socket.emit('init', { 'room': userId, 'name': 'conrad' });
+        socket.emit('chat message', '[LINE]' + text);
+    });
 
-    // Bluemix
-    var c_url = 'https://gateway.watsonplatform.net/conversation/api/v1/workspaces/db31651d-1472-4685-b0e6-c6b60c97762b/message?version=2016-09-20';
-    var c_user = '51b1d94f-026a-4d82-93de-98dd339aacdc';
-    var c_pass = 'aUwwBVMaIkmF';
-    var c_id = 'cbe98f28-87d6-45f5-8ff7-792295ae7b69';
-    var c_workspace = 'db31651d-1472-4685-b0e6-c6b60c97762b';
+    var username = '51b1d94f-026a-4d82-93de-98dd339aacdc',
+        password = 'aUwwBVMaIkmF',
+        id = 'cbe98f28-87d6-45f5-8ff7-792295ae7b69',
+        workspace = 'db31651d-1472-4685-b0e6-c6b60c97762b',
+        url = 'https://gateway.watsonplatform.net/conversation/api/v1/workspaces/' + workspace + '/message?version=2016-09-20';
 
-    //var prompt = require('prompt-sync')();
     var ConversationV1 = require('watson-developer-cloud/conversation/v1');
 
-    // Set up Conversation service wrapper.
     var conversation = new ConversationV1({
-        username: c_user,
-        password: c_pass,
-        path: { workspace_id: c_workspace },
+        username: username,
+        password: password,
+        path: { workspace_id: workspace },
         version_date: '2016-07-11'
     });
 
-    // Start conversation with empty message.
-   conversation.message({
-        input: { text: f_text },
+    conversation.message({
+        input: { text: text },
         context: {
-            conversation_id: c_id,
+            conversation_id: id,
             system: {
                 dialog_stack: [
                     {
@@ -82,116 +63,79 @@ app.post('/callback', (req, res) => {
             },
             defaultCounter: 0
         }
-    },function(err, response) {
+    }, function (err, res) {
         if (err) {
-            console.error(err); // something went wrong
+            console.error(err);
             return;
         }
 
-        // Display the output from dialog, if any.
-        if (response.output.text.length != 0) {
+        if (res.output.text.length != 0) {
+            var message1 = response.output.text[0];
+            var message2 = response.output.text[1];
 
-            var msg1 = response.output.text[0];
-            var msg2 = response.output.text[1];
+            if (message1) message = message1;
+            if (message2) message = message2;
 
-            if (msg1) msg = msg1;
-            if (msg2) msg = msg2;
-            console.log('response from Bluemix:' + msg);
-            var io   = require('socket.io-client');
+            console.log('Response from Bluemix:', message);
+
+            var io = require('socket.io-client');
             var socket = io('https://line-api-callback.herokuapp.com:80');
-            socket.on('connected', function() {
-                socket.emit('init', { 'room': uid, 'name': 'tagoto' });
-                socket.emit('chat message', '[BOT]'+ msg);
+            socket.on('connected', function () {
+                socket.emit('init', { 'room': userId, 'name': 'conrad' });
+                socket.emit('chat message', '[BOT]' + text);
             });
 
-            url = 'https://line-api-callback.herokuapp.com/push?msg=' + msg + '&uid=' + uid;
-            request(url, function (error, response, body) {
-                if (!error && response.statusCode == 200) {
-                } else {
-                    //          console.log('error: '+ response.statusCode);
-                }
-            })
-
+            url = 'https://line-api-callback.herokuapp.com/push?message=' + message + '&user_id=' + userId;
+            request(url, function (err, res, body) {});
         }
     });
-    // ret to LINE
+
     res.send('OK');
 });
 
-
-// PC to LINE
-app.get('/push', (req, res) => {
-
+app.get('/push', function (req, res) {
     var accessToken = 'PdQJho7fBHrwmShrnBoUsN/AjQcQ+Xc5iGVgMtZG4P/krKfSUd5Q38aTj4d3vDooI6xBcWoKa1s8BBZGyQfz7kmamz+vOoe5SRbW7j+RrbrlQD1ff/zZKtqpX/NZ6VoVF6G1zywppiSS859QcTzBNAdB04t89/1O/w1cDnyilFU=';
-//    console.log(accessToken);
-    var s_text =  req.query.msg;
-    var uid =  req.query.uid;
-//    console.log("in push msg:" + req.query.msg);
-//    console.log('uid in push:' + req.query.uid);
-    var options ={
+    var message = req.query.message;
+    var userId = req.query.user_id;
+
+    var options = {
         url: 'https://api.line.me/v2/bot/message/push',
-        port : 443,
-        method : 'POST',
+        port: 443,
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json; charser=UTF-8',
-            'Authorization': 'Bearer '  + accessToken
+            'Authorization': 'Bearer ' + accessToken
         },
         json: true,
-//      body: JSON.stringify(
-        body:
-            {
-                'to':  uid,
-                'messages': [{
+        body: {
+            'to': userId,
+            'messages': [
+                {
                     'type': 'text',
-                    'text': s_text
-                }]
-            }
+                    'text': message
+                }
+            ]
+        }
     };
 
-
-    request.post(options, function(error, response, body){
-//      console.log('++++++++' + util.inspect(error) + '++++++++++++');
-//      console.log('++++++++' + util.inspect(response) + '++++++++++++');
-//      console.log('++++++++' + util.inspect(body) + '++++++++++++');
-//      var code = response.statusCode;
-//      if (!error && ((body && body.errors) || code > 399)) {
-        if (!error && response.statusCode == 200) {
-//          console.log(body.name);
-//          console.log('200 !!!!!!!!!!!!!!!');
-        } else {
-//          console.log('error: '+ response.statusCode);
-//          console.log('error: '+ response.body);
-//          console.log('error: '+ body.errors);
-        }
-    });
+    request.post(options, function (err, res, body) {});
 });
 
-// chat
 var io = require('socket.io')(server);
-io.sockets.on('connection', (socket) => {
-    console.log('in io.on');
+io.sockets.on('connection', function (socket) {
     socket.emit('connected');
-    socket.on('init', function(req) {
-        console.log('in init');
+    socket.on('init', function (req) {
         socket.room = req.room;
         socket.name = req.name;
-        console.log('in init room:'+socket.room);
-        console.log('in init name:'+socket.name);
-        socket.to(req.room).emit('chat message', req.name + " さんが入室");
-//      console.log('room のなまえ:' + req.room);
+        socket.to(req.room).emit('chat message', req.name + " joined");
         socket.join(req.room);
-  //      console.log('入室しました:' + req.name + ':' + req.room);
     });
 
-    console.log('a user connected');
-    socket.on('chat message', (msg) => {
-        console.log('socket room: ' + socket.room);
-        console.log('socket name: ' + socket.room);
-        console.log('socket message: ' + msg);
-        io.to(socket.room).emit('chat message', '####'+ msg);
-        //io.emit('chat message', msg);
-  });
+    socket.on('chat message', function (message) {
+        io.to(socket.room).emit('chat message', 'Message:', message);
+    });
 });
 
-
-/// EOF
+server.listen(port, function () {
+    console.log('Listening to port:', port);
+});
