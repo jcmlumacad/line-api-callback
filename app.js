@@ -74,8 +74,8 @@ app.post('/callback', function (req, res) {
         }
 
         if (res.output.text.length != 0) {
-            var message1 = response.output.text[0];
-            var message2 = response.output.text[1];
+            var message1 = res.output.text[0];
+            var message2 = res.output.text[1];
 
             if (message1) message = message1;
             if (message2) message = message2;
