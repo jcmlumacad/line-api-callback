@@ -8,8 +8,7 @@ var express = require('express'),
     request = require('request'),
     https = require('https'),
     server = https.createServer(app),
-    port = process.env.NODE_PORT || 8080;
-
+    port = process.env.NODE_PORT;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -95,12 +94,12 @@ app.post('/callback', function (req, res) {
 });
 
 app.get('/push', function (req, res) {
-    var accessToken = process.env.ACCESS_TOKEN;
+    var accessToken = 'PdQJho7fBHrwmShrnBoUsN/AjQcQ+Xc5iGVgMtZG4P/krKfSUd5Q38aTj4d3vDooI6xBcWoKa1s8BBZGyQfz7kmamz+vOoe5SRbW7j+RrbrlQD1ff/zZKtqpX/NZ6VoVF6G1zywppiSS859QcTzBNAdB04t89/1O/w1cDnyilFU=';
     var message = req.query.message;
     var userId = req.query.user_id;
 
     var options = {
-        url: process.env.LINE_API_PUSH,
+        url: 'https://api.line.me/v2/bot/message/push',
         port: 443,
         method: 'POST',
         headers: {
