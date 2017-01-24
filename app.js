@@ -94,7 +94,7 @@ app.post('/callback', function (req, res) {
 });
 
 app.get('/push', function (req, res) {
-    var accessToken = 'PdQJho7fBHrwmShrnBoUsN/AjQcQ+Xc5iGVgMtZG4P/krKfSUd5Q38aTj4d3vDooI6xBcWoKa1s8BBZGyQfz7kmamz+vOoe5SRbW7j+RrbrlQD1ff/zZKtqpX/NZ6VoVF6G1zywppiSS859QcTzBNAdB04t89/1O/w1cDnyilFU=';
+    var accessToken = 'BHf8wqLBzJ9C6iBetAv7xgWH4lzFvSk7HObFl8SRmFuZiMJ4i19IgZ9NIz8Pgffz3uvUae6KWbw7b0wMjCs5dd7praRSiiqmiNDIf1uGlXnaLOwaR6rgNfjAIM/IGs46NA12zpY91+5xUVbDPniBxQdB04t89/1O/w1cDnyilFU=';
     var message = req.query.message;
     var userId = req.query.user_id;
 
