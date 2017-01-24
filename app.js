@@ -129,9 +129,7 @@ app.get('/push', function (req, res) {
         }
     };
 
-    request.post(options, function (err, res, body) {
-        console.log(res);
-    });
+    request.post(options, function (err, res, body) {});
 });
 
 var io = require('socket.io')(server);
