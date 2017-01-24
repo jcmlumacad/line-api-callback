@@ -20,8 +20,12 @@ app.get('/', function (req, res) {
 });
 
 app.post('/callback', function (req, res) {
+    console.log('got post request.');
+    console.log(req.body);
+    console.log(req.body.events[0].replyToken);
     var userId = req.body.events[0].source.userId;
     var eventType = req.body.events[0].type;
+    console.log('event type from LINE:' + req.body.events[0].type);
     if (eventType == 'message') {
         var text = req.body.events[0].message.text;
     }
@@ -123,15 +127,23 @@ app.get('/push', function (req, res) {
 
 var io = require('socket.io')(server);
 io.sockets.on('connection', function (socket) {
+    console.log('in io.on');
     socket.emit('connected');
     socket.on('init', function (req) {
+        console.log('in init');
         socket.room = req.room;
         socket.name = req.name;
+        console.log('in init room:', socket.room);
+        console.log('in init name:', socket.name);
         socket.to(req.room).emit('chat message', req.name + " joined");
         socket.join(req.room);
     });
 
+    console.log('a user connected');
     socket.on('chat message', function (message) {
+        console.log('socket room:', socket.room);
+        console.log('socket name:', socket.name);
+        console.log('socket message:', message);
         io.to(socket.room).emit('chat message', 'Message:', message);
     });
 });
