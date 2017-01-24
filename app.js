@@ -6,8 +6,8 @@ var express = require('express'),
     fs = require('fs'),
     util = require('util'),
     request = require('request'),
-    https = require('https'),
-    server = https.createServer(app),
+    http = require('http'),
+    server = http.createServer(app),
     port = process.env.PORT || 5000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
