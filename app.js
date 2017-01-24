@@ -6,8 +6,7 @@ var http = require('http');
 var querystring = require('querystring');
 var request = require('request');
 var server = require('http').createServer(app);
-var port = process.env.NODE_PORT || 80;
-var port = process.env.NODE_PORT || 8080;
+var port = process.env.NODE_PORT;
 
 server.listen(port);
 console.log('listening to port', port);
@@ -18,7 +17,7 @@ app.use(bodyParser.json());
 
 
 //
-app.get(`/`, (req, res) => {
+app.get('/', (req, res) => {
     var uid =  req.query.uid;
     console.log('uid:' + uid);
     res.sendFile(__dirname + '/index.html');
