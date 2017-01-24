@@ -34,7 +34,7 @@ app.post('/callback', function (req, res) {
     var socket = io('https://line-api-callback.herokuapp.com:80');
     socket.on('connected', function () {
         socket.emit('init', { 'room': userId, 'name': 'conrad' });
-        socket.emit('chat message', '[LINE]' + text);
+        socket.emit('chat message', '[LINE]: ' + text);
     });
 
     var username = '51b1d94f-026a-4d82-93de-98dd339aacdc',
@@ -92,7 +92,7 @@ app.post('/callback', function (req, res) {
             var socket = io('https://line-api-callback.herokuapp.com:80');
             socket.on('connected', function () {
                 socket.emit('init', { 'room': userId, 'name': 'conrad' });
-                socket.emit('chat message', '[BOT]' + message);
+                socket.emit('chat message', '[BOT]: ' + message);
             });
 
             url = 'https://line-api-callback.herokuapp.com/push?message=' + message + '&user_id=' + userId;
@@ -128,7 +128,9 @@ app.get('/push', function (req, res) {
         }
     };
 
-    request.post(options, function (err, res, body) {});
+    request.post(options, function (err, res, body) {
+        console.log(res);
+    });
 });
 
 var io = require('socket.io')(server);
