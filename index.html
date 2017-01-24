@@ -16,49 +16,40 @@
   <body>
     <ul id="messages"></ul>
     <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+      <input id="chat-response" autocomplete="off" /><button>Send</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.js"    crossorigin="anonymous"></script>
     <script>
-
-
-
-      // get uid
-      var url   = location.href;
-      params    = url.split("?");
-      spparams   = params[1].split("&");
-      ruid  = spparams[0].split("=");
-      var uid = ruid[1];
+      var url = location.href,
+          params = url.split("?"),
+          spparams   = params[1].split("&"),
+          ruid  = spparams[0].split("="),
+          uid = ruid[1];
 
       var socket = io();
 
-
-//      var room = 'U6536996273dbecdfd95f32bb3e0843bd';
       var room = uid;
-      var name = 'tagoto';
+      var name = 'Conrad';
 
       socket.on('connected', function() {
           socket.json.emit('init', { 'room': room, 'name': name });
       });
 
-      $('form').submit(() => {
-                $.get('push', {
-                        msg: $('#m').val(),
-                        uid: uid
-                }, function(data){
-                        //alert('ok')
-                        //alert(uid)
-                });
-                socket.emit('chat message', $('#m').val());
-//       socket.json.send('chat message', $('#m').val());
-                $('#m').val('');
-                return false;
-        });
-        socket.on('chat message', (msg) => {
-            $('#messages').append($('<li>').text(msg));
-        });
+      socket.on('chat message', (message) => {
+          $('#messages').append($('<li>').text(message));
+      });
+
+      $('form').submit(function () {
+          $.get('push', {
+              message: $('#chat-response').val(),
+              user_id: uid
+          }, function(data) {});
+          socket.emit('chat message', $('#chat-response').val());
+          $('#chat-response').val('');
+          return false;
+      });
     </script>
 
   </body>
