@@ -16,40 +16,41 @@
   <body>
     <ul id="messages"></ul>
     <form action="">
-      <input id="chat-response" autocomplete="off" /><button>Send</button>
+      <input id="response" autocomplete="off" /><button>Send</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.js"    crossorigin="anonymous"></script>
     <script>
-      var url = location.href,
-          params = url.split("?"),
-          spparams   = params[1].split("&"),
-          ruid  = spparams[0].split("="),
-          uid = ruid[1];
+        var url = location.href,
+            params = url.split("?"),
+            spparams   = params[1].split("&"),
+            ruid  = spparams[0].split("="),
+            uid = ruid[1];
 
-      var socket = io();
+        var socket = io();
 
-      var room = uid;
-      var name = 'Conrad';
+        var room = uid;
+        var name = 'Conrad';
 
-      socket.on('connected', function() {
-          socket.json.emit('init', { 'room': room, 'name': name });
-      });
+        socket.on('connected', function() {
+            socket.json.emit('init', { 'room': room, 'name': name });
+        });
 
-      socket.on('chat message', (message) => {
-          $('#messages').append($('<li>').text(message));
-      });
+        socket.on('chat message', function (message) {
+          console.log(message);
+            $('#messages').append($('<li>').text(message));
+        });
 
-      $('form').submit(function () {
-          $.get('push', {
-              message: $('#chat-response').val(),
-              user_id: uid
-          }, function(data) {});
-          socket.emit('chat message', $('#chat-response').val());
-          $('#chat-response').val('');
-          return false;
-      });
+        $('form').submit(function () {
+            $.get('push', {
+                message: $('#response').val(),
+                user_id: uid
+            }, function(data) {});
+            socket.emit('chat message', $('#response').val());
+            $('#response').val('');
+            return false;
+        });
     </script>
 
   </body>
